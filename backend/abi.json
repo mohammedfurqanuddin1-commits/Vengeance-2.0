@@ -1,0 +1,127 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "propertyId", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "landlord", "type": "address" },
+      { "indexed": true, "internalType": "address", "name": "tenant", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "rent", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "deposit", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "durationMonths", "type": "uint256" },
+      { "indexed": false, "internalType": "bytes32", "name": "leaseHash", "type": "bytes32" }
+    ],
+    "name": "PropertyListed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "propertyId", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "tenant", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "totalValueSent", "type": "uint256" }
+    ],
+    "name": "LeaseSignedAndFunded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "propertyId", "type": "uint256" },
+      { "indexed": true, "internalType": "address", "name": "landlord", "type": "address" },
+      { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "RentReleased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "propertyId", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "penaltyAmount", "type": "uint256" }
+    ],
+    "name": "LatePenaltyApplied",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "internalType": "uint256", "name": "propertyId", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "deductionAmount", "type": "uint256" },
+      { "indexed": false, "internalType": "uint256", "name": "depositRefundedToTenant", "type": "uint256" }
+    ],
+    "name": "LeaseEnded",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "address payable", "name": "_tenant", "type": "address" },
+      { "internalType": "uint256", "name": "_rent", "type": "uint256" },
+      { "internalType": "uint256", "name": "_deposit", "type": "uint256" },
+      { "internalType": "uint256", "name": "_durationMonths", "type": "uint256" },
+      { "internalType": "bytes32", "name": "_leaseHash", "type": "bytes32" }
+    ],
+    "name": "listProperty",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_propertyId", "type": "uint256" }],
+    "name": "signAndDeposit",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_propertyId", "type": "uint256" }],
+    "name": "releaseMonthlyRent",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_propertyId", "type": "uint256" }],
+    "name": "applyLatePenalty",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_propertyId", "type": "uint256" },
+      { "internalType": "uint256", "name": "_deductionAmount", "type": "uint256" }
+    ],
+    "name": "endLease",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_propertyId", "type": "uint256" },
+      { "internalType": "bytes32", "name": "_inputHash", "type": "bytes32" }
+    ],
+    "name": "verifyLease",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_propertyId", "type": "uint256" }],
+    "name": "getProperty",
+    "outputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "address", "name": "landlord", "type": "address" },
+      { "internalType": "address", "name": "tenant", "type": "address" },
+      { "internalType": "uint256", "name": "rent", "type": "uint256" },
+      { "internalType": "uint256", "name": "deposit", "type": "uint256" },
+      { "internalType": "uint256", "name": "durationMonths", "type": "uint256" },
+      { "internalType": "bytes32", "name": "leaseHash", "type": "bytes32" },
+      { "internalType": "uint8", "name": "state", "type": "uint8" },
+      { "internalType": "uint256", "name": "totalRentPaid", "type": "uint256" },
+      { "internalType": "uint256", "name": "latePenaltyAccumulated", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

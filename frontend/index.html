@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RentalEscrow PS42 | INNOBLOCK 2.0 Hackathon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Ethers.js v5 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="brand">
+      <div class="brand-icon">🏢</div>
+      <div>
+        <div class="brand-title">RentEscrow PS 42</div>
+        <div class="badge-hackathon">INNOBLOCK 2.0 • REAL ESTATE & LAND REGISTRY</div>
+      </div>
+    </div>
+    <div id="walletBadgeContainer">
+      <button id="connectWalletBtn" class="btn btn-primary">
+        <span>🦊 Connect MetaMask</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="container">
+    <div class="hero-banner">
+      <h1 class="hero-title">Property Rental Platform with Smart Escrow</h1>
+      <p class="hero-subtitle">
+        Eliminating fake landlords, missing rent payments, and deposit fraud with SHA-256 on-chain fingerprints, automated escrow releases, late penalties, and AI dispute arbitration.
+      </p>
+    </div>
+
+    <!-- 4-STEP DEMO WORKFLOW CARDS GRID -->
+    <div class="grid-cards">
+
+      <!-- STEP 1: Wallet & Property Listing (Landlord View) -->
+      <div class="card" id="step1Card">
+        <div class="card-header">
+          <div class="card-step">1</div>
+          <div class="card-title">List Property (Landlord View)</div>
+        </div>
+        <div class="card-body">
+          <div class="info-box" style="margin-bottom: 14px;">
+            <div class="info-row">
+              <span class="info-label">Wallet Status:</span>
+              <span id="walletStatusText" class="badge badge-yellow">Not Connected</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Connected Addr:</span>
+              <span id="walletAddressText" class="info-value">0x...</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Balance / Network:</span>
+              <span id="walletBalanceText" class="info-value">0.00 ETH</span>
+            </div>
+          </div>
+
+          <form id="listPropertyForm">
+            <div class="form-group">
+              <label for="landlordAddr">Landlord Address</label>
+              <input type="text" id="landlordAddr" placeholder="0x..." required>
+            </div>
+            <div class="form-group">
+              <label for="tenantAddr">Tenant Address</label>
+              <input type="text" id="tenantAddr" placeholder="0x..." required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+              <div class="form-group">
+                <label for="rentEth">Rent (ETH)</label>
+                <input type="number" step="0.01" id="rentEth" placeholder="0.2" required>
+              </div>
+              <div class="form-group">
+                <label for="depositEth">Deposit (ETH)</label>
+                <input type="number" step="0.01" id="depositEth" placeholder="0.4" required>
+              </div>
+              <div class="form-group">
+                <label for="durationMonths">Months</label>
+                <input type="number" id="durationMonths" value="12" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="termsText">Lease Terms & Agreement</label>
+              <textarea id="termsText" placeholder="Full property agreement, address, lease length, rules..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success" id="submitListBtn">
+              📝 List Property & Register SHA-256
+            </button>
+          </form>
+
+          <div id="listResultBox" class="info-box" style="display: none; margin-top: 14px;">
+            <div class="info-row">
+              <span class="info-label">Listed Property ID:</span>
+              <span id="resPropertyId" class="info-value" style="color: #6366f1;">#1</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Total Funding Needed (Deposit + 1st Month Rent):</span>
+              <span id="resTotalFunding" class="info-value" style="color: #10b981;">0.60 ETH</span>
+            </div>
+            <div style="margin-top: 6px;">
+              <span class="info-label">SHA-256 On-Chain Fingerprint:</span>
+              <div id="resBytes32Hash" class="code-display">0x...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Sign Lease & Lock Escrow (Tenant View) -->
+      <div class="card" id="step2Card">
+        <div class="card-header">
+          <div class="card-step">2</div>
+          <div class="card-title">Sign & Fund Escrow (Tenant View)</div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="step2PropertyIdInput">Property ID</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="number" id="step2PropertyIdInput" placeholder="Enter Property ID (e.g. 1)">
+              <button type="button" id="fetchPropertyBtn" class="btn btn-secondary" style="width: auto;">Fetch</button>
+            </div>
+          </div>
+
+          <div id="propertyDetailsBox" class="info-box" style="display: none; margin-bottom: 16px;">
+            <div class="info-row">
+              <span class="info-label">Landlord:</span>
+              <span id="propLandlord" class="info-value">0x...</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Tenant:</span>
+              <span id="propTenant" class="info-value">0x...</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Monthly Rent:</span>
+              <span id="propRent" class="info-value">0.00 ETH</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Security Deposit:</span>
+              <span id="propDeposit" class="info-value">0.00 ETH</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Initial Escrow Payment:</span>
+              <span id="propTotalInitial" class="info-value" style="color: #10b981;">0.00 ETH</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Lease Status:</span>
+              <span id="propStatus" class="badge badge-yellow">Created</span>
+            </div>
+          </div>
+
+          <button id="signAndDepositBtn" class="btn btn-primary" disabled>
+            ✍️ Sign & Deposit (Deposit + 1st Month Rent)
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Rent Release & Late Penalty -->
+      <div class="card" id="step3Card">
+        <div class="card-header">
+          <div class="card-step">3</div>
+          <div class="card-title">Monthly Rent Release & Late Penalty</div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="step3PropertyId">Property ID</label>
+            <input type="number" id="step3PropertyId" placeholder="1">
+          </div>
+
+          <div class="form-group">
+            <label for="monthlyRentEth">Monthly Rent Amount (ETH)</label>
+            <input type="number" step="0.01" id="monthlyRentEth" placeholder="0.2">
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button id="releaseRentBtn" class="btn btn-success">
+              💸 Release Monthly Rent to Landlord
+            </button>
+            <button id="applyPenaltyBtn" class="btn btn-secondary">
+              ⚠️ Calculate & Apply Late Payment Penalty (5%)
+            </button>
+          </div>
+
+          <div id="step3ResultBox" class="info-box" style="display: none; margin-top: 14px;">
+            <div id="step3StatusText" style="font-weight: 600; color: var(--accent-emerald);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Lease End Deposit Refund, AI Dispute & Verification -->
+      <div class="card" id="step4Card">
+        <div class="card-header">
+          <div class="card-step">4</div>
+          <div class="card-title">Lease End, AI Dispute & Verification</div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="step4PropertyId">Property ID</label>
+            <input type="number" id="step4PropertyId" placeholder="1">
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; margin-top: 12px;">
+            <label style="color: var(--accent-pink);">🤖 AI Dispute Arbitrator Evaluator</label>
+            <div class="form-group">
+              <input type="text" id="inspectionNotes" placeholder="Inspection notes (e.g. Broken window, wall scratches)">
+            </div>
+            <div class="form-group">
+              <input type="text" id="tenantStatement" placeholder="Tenant statement">
+            </div>
+            <div class="form-group">
+              <input type="text" id="landlordStatement" placeholder="Landlord statement">
+            </div>
+            <button id="evaluateDisputeBtn" class="btn btn-primary" style="margin-bottom: 12px;">
+              🤖 Run AI Dispute Arbitrator
+            </button>
+            <div id="aiResultBox" class="info-box" style="display: none; margin-bottom: 14px;">
+              <div class="info-row">
+                <span class="info-label">Recommended Deduction:</span>
+                <span id="aiDeductionEth" class="info-value" style="color: var(--accent-pink);">0.00 ETH</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Tenant Deposit Refund %:</span>
+                <span id="aiRefundPct" class="info-value" style="color: #10b981;">100%</span>
+              </div>
+              <div style="margin-top: 4px; font-size: 12px;" id="aiReasoningText"></div>
+            </div>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+            <div class="form-group">
+              <label for="deductionAmountEth">Agreed Deduction Amount (ETH)</label>
+              <input type="number" step="0.01" id="deductionAmountEth" placeholder="0.0">
+            </div>
+            <button id="endLeaseBtn" class="btn btn-success" style="margin-bottom: 12px;">
+              🏁 End Lease & Refund Deposit to Tenant
+            </button>
+          </div>
+
+          <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">
+            <label style="color: var(--accent-primary);">🔍 Verify On-Chain Lease Integrity</label>
+            <textarea id="verifyTermsText" placeholder="Paste full lease document text to verify on-chain SHA-256..." style="min-height: 60px; margin-bottom: 8px;"></textarea>
+            <button id="verifyIntegrityBtn" class="btn btn-secondary">
+              🔍 Verify On-Chain Integrity
+            </button>
+            <div id="verifyMatchBox" class="result-box match">
+              <span style="color: var(--accent-emerald); font-weight: 700;">✅ MATCH CONFIRMED (Untampered)</span>
+              <div id="verifyHashMatched" class="code-display"></div>
+            </div>
+            <div id="verifyMismatchBox" class="result-box mismatch">
+              <span style="color: var(--danger-color); font-weight: 700;">❌ TAMPERED / MISMATCH DETECTED</span>
+              <div id="verifyHashMismatch" class="code-display" style="color: #fca5a5;"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>INNOBLOCK 2.0 Hackathon Submission • Problem Statement PS 42 (Real Estate & Land Registry)</p>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
